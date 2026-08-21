@@ -3,11 +3,14 @@ package com.example.appcarplay.presenter.components
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.appcarplay.data.DataProvider
@@ -18,33 +21,29 @@ fun CarMediaAppGrid() {
     val data = DataProvider()
     val apps = data.apps
 
-    LazyRow(
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(2),
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        contentPadding = PaddingValues(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
-        items(apps.chunked(2)) { columApps ->
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                columApps.forEach { app ->
-                    DashboardButton(app.name, app.icon) {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(app.url))
-                        intent.setPackage(app.pack)
-                        try {
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            val webIntent = Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse(app.url)
-                            )
-                            context.startActivity(webIntent)
-                        }
-                    }
+        items(apps) { app ->
+            DashboardButton(app.name, app.icon, app.accent) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(app.url))
+                intent.setPackage(app.pack)
+                try {
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    val webIntent = Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(app.url)
+                    )
+                    context.startActivity(webIntent)
                 }
             }
         }
-
-
     }
-
-
 }
