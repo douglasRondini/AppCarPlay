@@ -8,9 +8,16 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <!-- Permissão específica para serviços de mídia em foreground (Android 10+) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+    <!-- Necessária para exibir a notificação de reprodução (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- Se realmente for implementar chamadas -->
     <uses-permission android:name="android.permission.CALL_PHONE"/>
+
+    <!-- Não exigir hardware automotivo: o app também roda como app comum de celular/tablet -->
+    <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="false"/>
 
     <application
         android:allowBackup="true"
@@ -21,6 +28,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCarPlay">
+
+        <!-- Declara o app como app de mídia para o Android Auto reconhecê-lo -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc"/>
 
         <!-- Activity principal -->
         <activity
@@ -36,18 +48,17 @@
             </intent-filter>
         </activity>
 
-        <!-- Serviço opcional para Android Auto (MediaBrowserService) -->
-        <!-- Só necessário se quiser que o app apareça como player oficial no Android Auto -->
-        <!--
+        <!-- Serviço de reprodução: expõe a MediaSession para o Android Auto e mantém o
+             áudio tocando independente da Activity (fecha o app, troca de tela, etc). -->
         <service
-            android:name=".service.CarMediaBrowserService"
+            android:name=".service.PlaybackService"
             android:exported="true"
-            android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE">
+            android:foregroundServiceType="mediaPlayback">
             <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService" />
+                <action android:name="androidx.media3.session.MediaSessionService"/>
+                <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
-        -->
 
     </application>
 </manifest>

@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.session)
     implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -60,13 +61,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-
-    // ExoPlayer principal
-    implementation("androidx.media3:media3-exoplayer:1.3.1")
-// UI para vídeo
-    implementation("androidx.media3:media3-ui:1.3.1")
-// MediaSession para integração
-    implementation("androidx.media3:media3-session:1.3.1")
 
     implementation("br.com.devsrsouza.compose.icons:simple-icons:1.1.1")
 

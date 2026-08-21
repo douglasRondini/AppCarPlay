@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Diz ao Android Auto que este app oferece conteúdo de mídia (áudio) através de uma
+    MediaSession — categoria "media". Vídeo e navegação livre de apps (YouTube, HBO,
+    etc.) não são suportados pela plataforma dentro do Android Auto.
+-->
+<automotiveApp>
+    <uses name="media"/>
+</automotiveApp>
