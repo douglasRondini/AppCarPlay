@@ -321,6 +321,13 @@ private fun MirrorDialog(
                         color = textSecondary,
                         fontSize = 12.sp
                     )
+                    Text(
+                        text = "Caminho: Configurações > Acessibilidade > Serviços instalados > AppCarPlay > ativar.",
+                        color = textSecondary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
                     androidx.compose.material3.TextButton(
                         onClick = onEnableTouchControl,
                         modifier = Modifier.padding(top = 4.dp)
