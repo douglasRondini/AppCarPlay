@@ -58,7 +58,27 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun openAccessibilitySettings() {
-        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        // Tenta abrir direto a tela de detalhe do serviço (evita o usuário ter que
+        // procurar "AppCarPlay" dentro de "Serviços instalados"). Esse truque usa
+        // chaves internas do Settings do Android e funciona na maioria dos aparelhos,
+        // mas nem todo fabricante respeita — por isso caímos para a tela genérica.
+        val componentName = android.content.ComponentName(
+            this, com.example.appcarplay.service.TouchAccessibilityService::class.java
+        ).flattenToString()
+
+        val direct = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            putExtra(":settings:fragment_args_key", componentName)
+            putExtra(
+                ":settings:show_fragment_args",
+                Bundle().apply { putString(":settings:fragment_args_key", componentName) }
+            )
+        }
+
+        try {
+            startActivity(direct)
+        } catch (e: Exception) {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
     }
 
     private fun requestIgnoreBatteryOptimizations() {
