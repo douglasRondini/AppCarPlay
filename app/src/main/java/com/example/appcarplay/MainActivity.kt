@@ -3,12 +3,14 @@ package com.example.appcarplay
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import com.example.appcarplay.presenter.CarMediaApp
 import com.example.appcarplay.service.ScreenMirrorService
 import com.example.appcarplay.util.getLocalIpAddress
+import com.example.appcarplay.util.isTouchAccessibilityServiceEnabled
 
 class MainActivity : ComponentActivity() {
 
@@ -31,7 +33,9 @@ class MainActivity : ComponentActivity() {
                 isMirroring = { ScreenMirrorService.isRunning },
                 onStartMirroring = { requestScreenMirroring() },
                 onStopMirroring = { stopScreenMirroring() },
-                mirrorAddress = { getLocalIpAddress()?.let { "http://$it:${ScreenMirrorService.HTTP_PORT}" } }
+                mirrorAddress = { getLocalIpAddress()?.let { "http://$it:${ScreenMirrorService.HTTP_PORT}" } },
+                isTouchControlEnabled = { isTouchAccessibilityServiceEnabled(this) },
+                onEnableTouchControl = { openAccessibilitySettings() }
             )
         }
     }
@@ -47,5 +51,9 @@ class MainActivity : ComponentActivity() {
             action = ScreenMirrorService.ACTION_STOP
         }
         startService(stopIntent)
+    }
+
+    private fun openAccessibilitySettings() {
+        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
     }
 }

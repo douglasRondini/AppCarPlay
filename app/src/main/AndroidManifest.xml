@@ -82,5 +82,20 @@
             android:exported="false"
             android:foregroundServiceType="mediaProjection"/>
 
+        <!-- Serviço de acessibilidade que traduz os toques recebidos da central
+             multimídia em gestos reais na tela deste dispositivo. Precisa ser
+             ativado manualmente pelo usuário em Configurações > Acessibilidade. -->
+        <service
+            android:name=".service.TouchAccessibilityService"
+            android:exported="false"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config"/>
+        </service>
+
     </application>
 </manifest>

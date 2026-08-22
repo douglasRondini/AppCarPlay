@@ -61,7 +61,9 @@ fun CarMediaApp(
     isMirroring: () -> Boolean = { false },
     onStartMirroring: () -> Unit = {},
     onStopMirroring: () -> Unit = {},
-    mirrorAddress: () -> String? = { null }
+    mirrorAddress: () -> String? = { null },
+    isTouchControlEnabled: () -> Boolean = { false },
+    onEnableTouchControl: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val preferences = remember { AppPreferences(context) }
@@ -168,8 +170,10 @@ fun CarMediaApp(
             MirrorDialog(
                 isMirroring = isMirroring(),
                 address = mirrorAddress(),
+                touchControlEnabled = isTouchControlEnabled(),
                 onStart = onStartMirroring,
                 onStop = onStopMirroring,
+                onEnableTouchControl = onEnableTouchControl,
                 onDismiss = { showMirrorDialog = false }
             )
         }
@@ -251,8 +255,10 @@ private fun currentTime(): String =
 private fun MirrorDialog(
     isMirroring: Boolean,
     address: String?,
+    touchControlEnabled: Boolean,
     onStart: () -> Unit,
     onStop: () -> Unit,
+    onEnableTouchControl: () -> Unit,
     onDismiss: () -> Unit
 ) {
     androidx.compose.material3.AlertDialog(
@@ -278,15 +284,36 @@ private fun MirrorDialog(
                         color = consoleAccent,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
                     )
                 } else {
                     Text(
                         text = "Espelhe a tela deste dispositivo para a central multimídia do veículo via Wi-Fi. " +
                             "Conecte ambos à mesma rede e, na tela seguinte, autorize a captura de tela.",
                         color = textSecondary,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
+                }
+
+                if (touchControlEnabled) {
+                    Text(
+                        text = "Controle por toque ativado — toques na central serão repassados para este aparelho.",
+                        color = consoleAccent,
+                        fontSize = 12.sp
+                    )
+                } else {
+                    Text(
+                        text = "Controle por toque desativado. Para tocar no app pela central, ative a acessibilidade do AppCarPlay.",
+                        color = textSecondary,
+                        fontSize = 12.sp
+                    )
+                    androidx.compose.material3.TextButton(
+                        onClick = onEnableTouchControl,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(text = "Ativar controle por toque", color = consoleAccent, fontSize = 13.sp)
+                    }
                 }
             }
         },

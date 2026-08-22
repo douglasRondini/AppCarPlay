@@ -81,6 +81,19 @@ class ScreenMirrorService : Service() {
         val height = (metrics.heightPixels * scale).toInt().coerceAtLeast(2)
         val density = metrics.densityDpi
 
+        // Os toques chegam como frações (0..1) da imagem exibida; convertemos para a
+        // resolução real da tela (não a reduzida do stream) antes de repassar ao serviço
+        // de acessibilidade, que é quem efetivamente simula o toque.
+        httpServer.onTouchEvent = { type, xFrac, yFrac ->
+            val realX = (xFrac * metrics.widthPixels).toFloat()
+            val realY = (yFrac * metrics.heightPixels).toFloat()
+            val touchService = TouchAccessibilityService.instance
+            when (type) {
+                "start" -> touchService?.onTouchStart(realX, realY)
+                "end" -> touchService?.onTouchEnd(realX, realY)
+            }
+        }
+
         imageReader = ImageReader.newInstance(width, height, android.graphics.PixelFormat.RGBA_8888, 2)
 
         virtualDisplay = mediaProjection?.createVirtualDisplay(

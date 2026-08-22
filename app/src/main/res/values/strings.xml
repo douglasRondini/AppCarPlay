@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">AppCarPlay</string>
     <string name="title_activity_main">AppCarPlay</string>
+    <string name="accessibility_service_description">Permite que o AppCarPlay repasse os toques feitos na central multimídia para controlar este dispositivo durante o espelhamento de tela.</string>
 </resources>
