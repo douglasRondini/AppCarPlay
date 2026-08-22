@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,10 @@ import com.example.appcarplay.ui.theme.consoleBackground
 import com.example.appcarplay.ui.theme.consoleSurface
 import com.example.appcarplay.ui.theme.textPrimary
 import com.example.appcarplay.ui.theme.textSecondary
+import com.example.appcarplay.util.BrakeSettingsManager
+import com.example.appcarplay.util.VehicleBrakeManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -58,6 +63,32 @@ fun CarMediaApp() {
 
     var selectedPackages by remember { mutableStateOf(preferences.getSelectedPackages()) }
     var showManageDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val vehicleBrakeManager = VehicleBrakeManager(context)
+            val brakeSettingsManager = BrakeSettingsManager(context)
+
+            // 1. Checa se o freio está ativo via HAL do Android (Android Automotive/CarPropertyManager)
+            val isBrakeActiveInCar = vehicleBrakeManager.isParkingBrakeOn()
+
+            // 2. Tenta checar também via chave do sistema (para multimídias 2-Din/chinesas)
+            val activeKey = brakeSettingsManager.getActiveBrakeKey()
+            val isBrakeActiveInSystem = if (activeKey != null) {
+                try {
+                    android.provider.Settings.System.getInt(context.contentResolver, activeKey, 0) == 1 ||
+                            android.provider.Settings.Secure.getInt(context.contentResolver, activeKey, 0) == 1
+                } catch (e: Exception) {
+                    false
+                }
+            } else false
+
+            // Se o freio estiver ativado em qualquer um dos cenários, força a liberação/bypass
+            if (isBrakeActiveInCar || isBrakeActiveInSystem) {
+                brakeSettingsManager.setBrakeBypass(false)
+            }
+        }
+    }
 
     fun updateSelection(newSelection: Set<String>) {
         selectedPackages = newSelection

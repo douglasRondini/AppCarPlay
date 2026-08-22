@@ -11,6 +11,16 @@
     <!-- Necessária para exibir a notificação de reprodução (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <!-- Permissão para acessar as configurações -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
+
+    <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
+
+    <uses-permission android:name="android.car.permission.CAR_READ_PARKING_BRAKE" />
+    <!-- Para o serviço de propriedades gerais caso necessário -->
+    <uses-permission android:name="android.car.permission.CAR_INFO" />
+
     <!-- Se realmente for implementar chamadas -->
     <uses-permission android:name="android.permission.CALL_PHONE"/>
 
@@ -23,7 +33,7 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/baseline_lock_reset_24"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"

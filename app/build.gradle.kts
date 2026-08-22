@@ -8,6 +8,8 @@ android {
     namespace = "com.example.appcarplay"
     compileSdk = 36
 
+    useLibrary("android.car")
+
     defaultConfig {
         applicationId = "com.example.appcarplay"
         minSdk = 23
@@ -63,5 +65,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation("br.com.devsrsouza.compose.icons:simple-icons:1.1.1")
+
+
+    // Para aplicativos de multimídia/navegação/pontos de interesse no Android Auto e Automotive
+    implementation("androidx.car.app:app:1.4.0")
 
 }

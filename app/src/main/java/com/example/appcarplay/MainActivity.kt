@@ -3,6 +3,7 @@ package com.example.appcarplay
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.appcarplay.presenter.BrakeControlScreen
 import com.example.appcarplay.presenter.CarMediaApp
 
 class MainActivity : ComponentActivity() {
@@ -12,6 +13,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CarMediaApp()
+            // BrakeControlScreen()
         }
     }
 }
