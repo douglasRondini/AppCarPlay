@@ -2,6 +2,7 @@ package com.example.appcarplay
 
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -10,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.example.appcarplay.presenter.CarMediaApp
 import com.example.appcarplay.service.ScreenMirrorService
 import com.example.appcarplay.util.getLocalIpAddress
+import com.example.appcarplay.util.isIgnoringBatteryOptimizations
 import com.example.appcarplay.util.isTouchAccessibilityServiceEnabled
 
 class MainActivity : ComponentActivity() {
@@ -35,7 +37,9 @@ class MainActivity : ComponentActivity() {
                 onStopMirroring = { stopScreenMirroring() },
                 mirrorAddress = { getLocalIpAddress()?.let { "http://$it:${ScreenMirrorService.HTTP_PORT}" } },
                 isTouchControlEnabled = { isTouchAccessibilityServiceEnabled(this) },
-                onEnableTouchControl = { openAccessibilitySettings() }
+                onEnableTouchControl = { openAccessibilitySettings() },
+                isBackgroundSafe = { isIgnoringBatteryOptimizations(this) },
+                onEnableBackgroundSafe = { requestIgnoreBatteryOptimizations() }
             )
         }
     }
@@ -55,5 +59,13 @@ class MainActivity : ComponentActivity() {
 
     private fun openAccessibilitySettings() {
         startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+    }
+
+    private fun requestIgnoreBatteryOptimizations() {
+        val intent = Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            Uri.parse("package:$packageName")
+        )
+        startActivity(intent)
     }
 }

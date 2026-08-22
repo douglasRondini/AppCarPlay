@@ -63,7 +63,9 @@ fun CarMediaApp(
     onStopMirroring: () -> Unit = {},
     mirrorAddress: () -> String? = { null },
     isTouchControlEnabled: () -> Boolean = { false },
-    onEnableTouchControl: () -> Unit = {}
+    onEnableTouchControl: () -> Unit = {},
+    isBackgroundSafe: () -> Boolean = { false },
+    onEnableBackgroundSafe: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val preferences = remember { AppPreferences(context) }
@@ -171,9 +173,11 @@ fun CarMediaApp(
                 isMirroring = isMirroring(),
                 address = mirrorAddress(),
                 touchControlEnabled = isTouchControlEnabled(),
+                backgroundSafe = isBackgroundSafe(),
                 onStart = onStartMirroring,
                 onStop = onStopMirroring,
                 onEnableTouchControl = onEnableTouchControl,
+                onEnableBackgroundSafe = onEnableBackgroundSafe,
                 onDismiss = { showMirrorDialog = false }
             )
         }
@@ -256,9 +260,11 @@ private fun MirrorDialog(
     isMirroring: Boolean,
     address: String?,
     touchControlEnabled: Boolean,
+    backgroundSafe: Boolean,
     onStart: () -> Unit,
     onStop: () -> Unit,
     onEnableTouchControl: () -> Unit,
+    onEnableBackgroundSafe: () -> Unit,
     onDismiss: () -> Unit
 ) {
     androidx.compose.material3.AlertDialog(
@@ -313,6 +319,23 @@ private fun MirrorDialog(
                         modifier = Modifier.padding(top = 4.dp)
                     ) {
                         Text(text = "Ativar controle por toque", color = consoleAccent, fontSize = 13.sp)
+                    }
+                }
+
+                if (!backgroundSafe) {
+                    Text(
+                        text = "O espelhamento continua funcionando enquanto você usa outro app (WhatsApp, etc.), " +
+                            "mas o sistema pode encerrá-lo para economizar bateria. Libere o app da otimização de bateria " +
+                            "para manter o espelhamento estável em segundo plano.",
+                        color = textSecondary,
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                    androidx.compose.material3.TextButton(
+                        onClick = onEnableBackgroundSafe,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Text(text = "Liberar segundo plano", color = consoleAccent, fontSize = 13.sp)
                     }
                 }
             }

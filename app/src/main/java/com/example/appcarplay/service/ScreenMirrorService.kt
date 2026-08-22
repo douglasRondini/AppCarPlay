@@ -14,6 +14,7 @@ import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.DisplayMetrics
 import androidx.core.app.NotificationCompat
 import com.example.appcarplay.MainActivity
@@ -41,6 +42,7 @@ class ScreenMirrorService : Service() {
     private var mediaProjection: MediaProjection? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var imageReader: ImageReader? = null
+    private var wakeLock: PowerManager.WakeLock? = null
     private val httpServer = MjpegHttpServer(HTTP_PORT)
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -66,9 +68,21 @@ class ScreenMirrorService : Service() {
     }
 
     private fun startCapture(resultCode: Int, resultData: Intent) {
+        // Mantém a CPU acordada enquanto espelha, mesmo com o usuário navegando em
+        // outro app (WhatsApp, etc.) ou com o Android tentando economizar bateria.
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK, "AppCarPlay:ScreenMirror"
+        ).apply { acquire(12 * 60 * 60 * 1000L) } // limite de segurança de 12h
+
         val projectionManager =
             getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         mediaProjection = projectionManager.getMediaProjection(resultCode, resultData)
+        mediaProjection?.registerCallback(object : MediaProjection.Callback() {
+            override fun onStop() {
+                stopSelf()
+            }
+        }, null)
 
         val metrics = DisplayMetrics()
         val windowManager = getSystemService(WINDOW_SERVICE) as android.view.WindowManager
@@ -175,6 +189,7 @@ class ScreenMirrorService : Service() {
         virtualDisplay?.release()
         imageReader?.close()
         mediaProjection?.stop()
+        if (wakeLock?.isHeld == true) wakeLock?.release()
         super.onDestroy()
     }
 }
