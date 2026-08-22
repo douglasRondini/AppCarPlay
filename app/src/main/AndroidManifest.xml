@@ -11,6 +11,11 @@
     <!-- Necessária para exibir a notificação de reprodução (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+    <!-- Espelhamento de tela para centrais multimídia -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+
     <!-- Permissão para acessar as configurações -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" tools:ignore="ProtectedPermissions" />
@@ -69,6 +74,13 @@
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
+
+        <!-- Serviço de espelhamento de tela: captura a tela via MediaProjection e a
+             expõe por HTTP (MJPEG) para centrais multimídia acessarem pelo navegador. -->
+        <service
+            android:name=".service.ScreenMirrorService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection"/>
 
     </application>
 </manifest>

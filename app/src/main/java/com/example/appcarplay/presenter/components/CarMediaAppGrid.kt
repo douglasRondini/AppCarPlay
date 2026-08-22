@@ -23,9 +23,12 @@ import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.border
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Cast
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,14 +37,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appcarplay.domain.model.AppItem
 import com.example.appcarplay.ui.theme.consoleAccent
 import com.example.appcarplay.ui.theme.consoleBorder
 import com.example.appcarplay.ui.theme.consoleSurface
+import com.example.appcarplay.ui.theme.textPrimary
 import com.example.appcarplay.ui.theme.textSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -50,7 +58,9 @@ import kotlinx.coroutines.launch
 fun CarMediaAppGrid(
     apps: List<AppItem>,
     onRemoveApp: (AppItem) -> Unit,
-    onAddApp: () -> Unit
+    onAddApp: () -> Unit,
+    onOpenSettings: () -> Unit = {},
+    onOpenMirroring: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -139,6 +149,70 @@ fun CarMediaAppGrid(
                 }
             }
         }
+
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                SpecialActionButton(
+                    label = "Configurações",
+                    icon = Icons.Filled.Settings,
+                    accent = Color(0xFFFF8A3D),
+                    onClick = onOpenSettings,
+                    modifier = Modifier.weight(1f)
+                )
+                SpecialActionButton(
+                    label = "Espelhamento de Tela",
+                    icon = Icons.Filled.Cast,
+                    accent = Color(0xFF2C7BE5),
+                    onClick = onOpenMirroring,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+/** Card de ação com borda em degradê, usado para atalhos de destaque como Configurações e Espelhamento. */
+@Composable
+private fun SpecialActionButton(
+    label: String,
+    icon: ImageVector,
+    accent: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .width(132.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(consoleSurface)
+            .border(
+                width = 1.5.dp,
+                brush = Brush.verticalGradient(
+                    listOf(accent, accent.copy(alpha = 0.25f))
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = accent,
+            modifier = Modifier.size(30.dp)
+        )
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = textPrimary,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier.padding(top = 10.dp, start = 8.dp, end = 8.dp)
+        )
     }
 }
 

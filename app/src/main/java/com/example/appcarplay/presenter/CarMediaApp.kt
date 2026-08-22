@@ -57,12 +57,18 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun CarMediaApp() {
+fun CarMediaApp(
+    isMirroring: () -> Boolean = { false },
+    onStartMirroring: () -> Unit = {},
+    onStopMirroring: () -> Unit = {},
+    mirrorAddress: () -> String? = { null }
+) {
     val context = LocalContext.current
     val preferences = remember { AppPreferences(context) }
 
     var selectedPackages by remember { mutableStateOf(preferences.getSelectedPackages()) }
     var showManageDialog by remember { mutableStateOf(false) }
+    var showMirrorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -133,7 +139,9 @@ fun CarMediaApp() {
                         CarMediaAppGrid(
                             apps = selectedApps,
                             onRemoveApp = { app -> updateSelection(selectedPackages - app.pack) },
-                            onAddApp = { showManageDialog = true }
+                            onAddApp = { showManageDialog = true },
+                            onOpenSettings = { showManageDialog = true },
+                            onOpenMirroring = { showMirrorDialog = true }
                         )
                     }
                 }
@@ -153,6 +161,16 @@ fun CarMediaApp() {
                     )
                 },
                 onDismiss = { showManageDialog = false }
+            )
+        }
+
+        if (showMirrorDialog) {
+            MirrorDialog(
+                isMirroring = isMirroring(),
+                address = mirrorAddress(),
+                onStart = onStartMirroring,
+                onStop = onStopMirroring,
+                onDismiss = { showMirrorDialog = false }
             )
         }
     }
@@ -228,6 +246,68 @@ private fun DashboardHeader(onManageApps: () -> Unit) {
 
 private fun currentTime(): String =
     SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+@Composable
+private fun MirrorDialog(
+    isMirroring: Boolean,
+    address: String?,
+    onStart: () -> Unit,
+    onStop: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = consoleSurface,
+        title = {
+            Text(
+                text = "Espelhamento de Tela",
+                color = textPrimary,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column {
+                if (isMirroring && address != null) {
+                    Text(
+                        text = "Espelhando. Na central multimídia, abra o navegador e acesse:",
+                        color = textSecondary,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = address,
+                        color = consoleAccent,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Espelhe a tela deste dispositivo para a central multimídia do veículo via Wi-Fi. " +
+                            "Conecte ambos à mesma rede e, na tela seguinte, autorize a captura de tela.",
+                        color = textSecondary,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            androidx.compose.material3.TextButton(onClick = {
+                if (isMirroring) onStop() else onStart()
+                onDismiss()
+            }) {
+                Text(
+                    text = if (isMirroring) "Parar" else "Iniciar",
+                    color = consoleAccent
+                )
+            }
+        },
+        dismissButton = {
+            androidx.compose.material3.TextButton(onClick = onDismiss) {
+                Text(text = "Fechar", color = textSecondary)
+            }
+        }
+    )
+}
 
 @Preview(showBackground = true)
 @Composable
